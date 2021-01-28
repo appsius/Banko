@@ -30,6 +30,7 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+console.log(accounts);
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -83,8 +84,16 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-
 displayMovements(account1.movements);
+
+const usernames = accounts.forEach((account, i) => {
+  const dividedName = account.owner.split(' ');
+  let accAbbrv = dividedName.map(name => {
+    const replacedName = name[0].replace(name[0], name[0].toLowerCase());
+    return dividedName[0].replace(dividedName[0], replacedName);
+  });
+  console.log([...accAbbrv].join('.'));
+});
 
 //*************************************************************//
 //*************************************************************//
