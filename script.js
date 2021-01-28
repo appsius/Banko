@@ -89,22 +89,47 @@ displayMovements(account1.movements);
 //*************************************************************//
 //*************************************************************//
 
-const juliaDogData1 = [3, 5, 2, 12, 7];
-const katesDogData1 = [2, 1, 15, 8, 3];
-const juliaDogData2 = [9, 16, 6, 8, 3];
-const katesDogData2 = [10, 5, 6, 1, 4];
+//const juliaDogData1 = [3, 5, 2, 12, 7];
+//const katesDogData1 = [2, 1, 15, 8, 3];
+//const juliaDogData2 = [9, 16, 6, 8, 3];
+//const katesDogData2 = [10, 5, 6, 1, 4];
 
-const checkDogs = function (julias, kates) {
-  const correctedJulia = julias.slice(1, -1);
-  const totalData = correctedJulia.concat(kates);
+//const checkDogs = function (julias, kates) {
+//  const correctedJulia = [...julias];
+//  correctedJulia.splice(0, 1);
+//  correctedJulia.splice(-2, 2);
 
-  totalData.forEach(function (dogAge, i) {
-    dogAge >= 3
-      ? console.log(`Dog number ${i + 1} is a dog and is (${dogAge}) years old`)
-      : console.log(
-          `Dog number ${i + 1} is still a puppy (${dogAge}) years old 🐶🐶`
-        );
-  });
-};
+//  const totalData = correctedJulia.concat(kates);
 
-checkDogs([2, 3, 2], []);
+//  totalData.forEach(function (dogAge, i) {
+//    dogAge >= 3
+//      ? console.log(
+//          `Dog number ${i + 1} is an adult and is (${dogAge}) years old`
+//        )
+//      : console.log(
+//          `Dog number ${i + 1} is still a puppy (${dogAge}) years old 🐶🐶`
+//        );
+//  });
+//};
+
+//checkDogs([2, 3, 2, 2], []);
+
+//*************************************************************//
+//                      MAP
+//*************************************************************//
+
+//const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+//const fromEurToUsd = 1.1;
+//const movementsMap = movements.map(mov => mov * fromEurToUsd);
+
+//let movementsFor = [];
+//for (let mov of movements) movementsFor.push(mov * fromEurToUsd);
+
+//const movsDescription = movements.map(
+//  (mov, i) =>
+//    `Movement ${i + 1}: You have ${
+//      mov > 0 ? 'deposited' : 'withdrew'
+//    } $${Math.abs(mov)}`
+//);
+
+//console.log(movsDescription);
