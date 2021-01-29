@@ -30,7 +30,6 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
-console.log(accounts);
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -66,34 +65,181 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 
-const displayMovements = function (movements) {
+const transToShort = accs => {
+  accs.forEach((acc, i) => {
+    acc.shortName = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map((name, i) => name[0])
+      .join('');
+  });
+};
+transToShort(accounts);
+
+const displayMovements = function (account) {
   containerMovements.innerHTML = '';
 
-  movements.forEach(function (mov, i) {
+  account.movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
-      <div class="movements__row">
-        <div class="movements__type movements__type--${type}">${
-      i + 1
-    } ${type}</div>
-        <div class="movements__value">${mov}</div>
-      </div>
+    <div class="movements__row">
+    <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+    <div class="movements__value">${mov}</div>
+    </div>
     `;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 
-const usernames = accounts.forEach((account, i) => {
-  const dividedName = account.owner.split(' ');
-  let accAbbrv = dividedName.map(name => {
-    const replacedName = name[0].replace(name[0], name[0].toLowerCase());
-    return dividedName[0].replace(dividedName[0], replacedName);
-  });
-  console.log([...accAbbrv].join('.'));
+const displayBalance = account => {
+  const balance = account.movements.reduce((acc, cur) => acc + cur, 0);
+  labelBalance.textContent = `${balance}€`;
+};
+
+const calcDisplaySummary = account => {
+  const income = account.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, cur) => acc + cur, 0);
+  labelSumIn.innerText = `${income}€`;
+
+  const expense = account.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, cur) => acc + cur, 0);
+  labelSumOut.textContent = `${Math.abs(expense)}€`;
+
+  const interest = account.movements
+    .filter(mov => mov > 0)
+    .map(mov => mov * account.interestRate * 0.01)
+    .filter(int => int > 1)
+    .reduce((acc, cur) => acc + cur, 0);
+
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+};
+
+const displayCalcs = function () {
+  // display
+  displayMovements(currentUser);
+  displayBalance(currentUser);
+  calcDisplaySummary(currentUser);
+};
+
+let currentUser;
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  currentUser = accounts.find(
+    acc => acc.shortName === inputLoginUsername.value
+  );
+
+  if (currentUser?.pin === Number(inputLoginPin.value)) {
+    // display UI and welcome message
+    labelWelcome.textContent = `Welcome back, ${
+      currentUser.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = '1';
+
+    // emptying fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // display movements, balance, summary
+    displayCalcs(currentUser);
+  }
 });
+
+console.log(accounts);
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const balance = Number(labelBalance.textContent.slice(0, -1));
+  let receiver = accounts.find(acc => acc.shortName === inputTransferTo.value);
+
+  if (0 < amount < balance) {
+    receiver.movements.push(amount);
+    currentUser.movements.push(-amount);
+    inputTransferAmount.value = inputTransferTo.value = '';
+    displayCalcs(currentUser);
+  }
+});
+
+//######################## 29.01.2021 ########################//
+//############################################################//
+//const movements = account1.movements;
+//const lonelyWithdrawal = movements.find(mov => mov < 0);
+//console.log(movements);
+//console.log(lonelyWithdrawal);
+
+//const ss = accounts.find(s => s.owner === 'Sarah Smith');
+//console.log(ss);
+
+//const fromEurToUsd = 1.1;
+//const convertEursToDolor = movements =>
+//  movements
+//    .filter(mov => mov > 0)
+//    .map((mov, i, arr) => {
+//      console.log(arr);
+//      return mov * fromEurToUsd;
+//    })
+//    .reduce((acc, cur) => acc + cur, 0);
+//console.log(convertEursToDolor(account1.movements));
+
+//const dogsAge1 = [5, 2, 4, 1, 15, 8, 3];
+//const dogsAge2 = [16, 6, 10, 5, 6, 1, 4];
+//const calcHumanAges = dogsAge => {
+//  const humansAge = dogsAge.map((dage, i) =>
+//    dage <= 2 ? dage * 2 : 16 + dage * 4
+//  );
+//  console.log(humansAge);
+
+//  const dogsAbove18 = [...humansAge].filter(humanAge => humanAge > 18);
+//  console.log(dogsAbove18);
+
+//  const avgHumanAge = dogsAbove18.reduce(
+//    (acc, cur, i, arr) => acc + cur / arr.length,
+//    0
+//  );
+//  console.log(avgHumanAge);
+//};
+//calcHumanAges(dogsAge2);
+
+//const calcHumanAges1 = dogsAge => {
+//  const humanAgeAvg = dogsAge
+//    .map(dage => (dage <= 2 ? 2 * dage : 16 + dage * 4))
+//    .filter(humanAge => humanAge > 18)
+//    .reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+
+//  console.log(humanAgeAvg);
+//};
+//calcHumanAges1(dogsAge2);
+
+//const findMax = movements => {
+//  const max = movements.reduce((acc, curr) => Math.max(acc, curr));
+//  console.log(max);
+//};
+//findMax([23, -2, 222]);
+
+//const transToShort = accs => {
+//  accs.forEach((acc, i) => {
+//    acc.shortName = acc.owner
+//      .toLowerCase()
+//      .split(' ')
+//      .map((name, i) => name[0])
+//      .join('.');
+//  });
+//  console.log(accs);
+//};
+//transToShort(accounts);
+
+//const withdrawals = account1.movements.filter(mov => mov < 0);
+//const totalDeposits = account1.movements.reduce((acc, curr) => acc + curr, 0);
+
+//console.log(account1.movements);
+//console.log(withdrawals);
+//console.log(totalDeposits);
 
 //*************************************************************//
 //*************************************************************//
