@@ -106,12 +106,12 @@ const calcDisplaySummary = account => {
     .reduce((acc, cur) => acc + cur, 0);
   labelSumOut.textContent = `${Math.abs(expense)}€`;
 
-  const interest = account.movements
+  account.interest = account.movements
     .filter(mov => mov > 0)
     .map(mov => mov * account.interestRate * 0.01)
     .filter(int => int > 1)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = `${account.interest.toFixed(2)}€`;
 };
 
 const displayCalcs = acc => {
@@ -137,12 +137,10 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur();
 
     displayCalcs(currentUser);
-
-    console.log(accounts);
   }
 });
 
-btnTransfer.addEventListener('click', function (e) {
+btnTransfer.addEventListener('click', e => {
   e.preventDefault();
 
   const amount = Number(inputTransferAmount.value);
@@ -162,5 +160,62 @@ btnTransfer.addEventListener('click', function (e) {
     currentUser.movements.push(-amount);
 
     displayCalcs(currentUser);
+  }
+});
+
+btnLoan.addEventListener('click', e => {
+  e.preventDefault();
+
+  const loan = Number(inputLoanAmount.value);
+  let oneTenOf;
+  if (currentUser.movements.some(mov => mov > 0)) {
+    oneTenOf = currentUser.movements.reduce((acc, cur) => acc + cur * 0.1, 0);
+  }
+
+  inputLoanAmount.value = '';
+
+  if (loan < oneTenOf && loan > 0) {
+    currentUser.interest += loan;
+    labelSumInterest.textContent = `${currentUser.interest.toFixed(2)}€`;
+    return;
+  }
+});
+
+let order = true;
+btnSort.addEventListener('click', e => {
+  order
+    ? currentUser.movements.sort((a, b) => b - a)
+    : currentUser.movements.sort((a, b) => a - b);
+  order = !order;
+
+  displayCalcs(currentUser);
+});
+
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+
+  const accIdx = accounts.findIndex(acc => {
+    if (
+      acc === currentUser &&
+      acc.shortName === inputCloseUsername.value &&
+      acc.pin === Number(inputClosePin.value)
+    ) {
+      return acc;
+    }
+  });
+
+  inputClosePin.value = inputCloseUsername.value = '';
+
+  if (accIdx >= 0) {
+    accounts.splice(accIdx, 1);
+
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = 'Account deleted!';
+    labelWelcome.style.color = 'red';
+
+    setTimeout(() => {
+      labelWelcome.textContent = 'Sign up to get started';
+      labelWelcome.style.color = '#444';
+    }, 3000);
   }
 });
