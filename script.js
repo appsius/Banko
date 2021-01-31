@@ -159,6 +159,7 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc.movements.push(amount);
     currentUser.movements.push(-amount);
 
+    orderMovs();
     displayCalcs(currentUser);
   }
 });
@@ -181,14 +182,18 @@ btnLoan.addEventListener('click', e => {
   }
 });
 
-let order = true;
-btnSort.addEventListener('click', e => {
+let order;
+const orderMovs = () => {
   order
     ? currentUser.movements.sort((a, b) => b - a)
     : currentUser.movements.sort((a, b) => a - b);
   order = !order;
-
   displayCalcs(currentUser);
+};
+
+btnSort.addEventListener('click', e => {
+  e.preventDefault();
+  orderMovs();
 });
 
 btnClose.addEventListener('click', e => {
