@@ -112,6 +112,11 @@ transToShort(accounts);
 
 const displayMovements = function (account) {
   containerMovements.innerHTML = '';
+
+  const accountDates = account.movementsDates.flatMap(date => {
+    return new Date(date).toLocaleDateString().split('-');
+  });
+
   account.movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
@@ -119,6 +124,7 @@ const displayMovements = function (account) {
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+        <div class="movements__date">${accountDates[i]}</div>
         <div class="movements__value">${mov.toFixed(2)}</div>
       </div>
     `;
@@ -127,8 +133,16 @@ const displayMovements = function (account) {
 };
 
 const displayBalance = account => {
+  let today = new Date().toLocaleDateString('tr-TR').split('.').join('/');
+  let time = new Date()
+    .toLocaleTimeString('tr-TR')
+    .split(/:| /)
+    .slice(0, -1)
+    .join(':');
+
   account.balance = account.movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${account.balance.toFixed(2)}€`;
+  labelDate.textContent = `${today}, ${time}`;
 };
 
 const calcDisplaySummary = account => {
@@ -155,6 +169,15 @@ const orderMovs = () => {
   order
     ? currentUser.movements.sort((a, b) => a - b)
     : currentUser.movements.sort((a, b) => b - a);
+
+  order
+    ? currentUser.movementsDates.sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+      )
+    : currentUser.movementsDates.sort(
+        (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      );
+
   order = !order;
   displayCalcs(currentUser);
 };
@@ -166,6 +189,11 @@ const displayCalcs = acc => {
 };
 
 let currentUser;
+
+currentUser = account1;
+displayCalcs(currentUser);
+containerApp.style.opacity = 1;
+
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -182,7 +210,6 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
-    orderMovs();
     displayCalcs(currentUser);
   }
 });
@@ -203,11 +230,12 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc &&
     receiverAcc?.shortName !== currentUser.shortName
   ) {
-    receiverAcc.movements.push(amount);
     currentUser.movements.push(-amount);
+    receiverAcc.movements.push(amount);
 
-    order = !order;
-    orderMovs();
+    currentUser.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     displayCalcs(currentUser);
   }
 });
@@ -215,19 +243,14 @@ btnTransfer.addEventListener('click', e => {
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
 
-  const loan = (+inputLoanAmount.value).toFixed(0);
-  let oneTenOf;
-  if (currentUser.movements.some(mov => mov > 0)) {
-    oneTenOf = currentUser.movements.reduce((acc, cur) => acc + cur * 0.1, 0);
+  const loan = +Number(inputLoanAmount.value).toFixed(2);
+  if (loan > 0 && currentUser.movements.some(mov => loan < mov * 0.1)) {
+    currentUser.movements.push(loan);
+    currentUser.movementsDates.push(new Date().toISOString());
   }
-
   inputLoanAmount.value = '';
 
-  if (loan < oneTenOf && loan > 0) {
-    currentUser.interest += Number(loan);
-    labelSumInterest.textContent = `${currentUser.interest.toFixed(0)}€`;
-    return;
-  }
+  displayCalcs(currentUser);
 });
 
 btnSort.addEventListener('click', e => {

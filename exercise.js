@@ -1,25 +1,24 @@
 //######################## 29.01.2021 ########################//
 //############################################################//
-const now = new Date();
+//const now = new Date();
 //console.log(new Date(account1.movementsDates[0]));
 //console.log(new Date(1 * 52 * 360 * 24 * 60 * 60 * 1000));
-const ft = new Date(2021, 4, 2, 13);
-console.log(ft);
-console.log(ft.getFullYear());
-console.log(ft.getMonth());
-console.log(ft.getDate());
-console.log(ft.getDay());
-console.log(ft.getHours());
-console.log(ft.getMinutes());
-console.log(ft.getSeconds());
-console.log(ft.toISOString());
-console.log(ft.getTime());
-console.log(new Date(1619949600000));
-console.log(Date.now());
-console.log(new Date(1612163719208));
-
-ft.setFullYear(2030);
-console.log(ft);
+//const ft = new Date(2021, 4, 2, 13);
+//console.log(ft);
+//console.log(ft.getFullYear());
+//console.log(ft.getMonth());
+//console.log(ft.getDate());
+//console.log(ft.getDay());
+//console.log(ft.getHours());
+//console.log(ft.getMinutes());
+//console.log(ft.getSeconds());
+//console.log(ft.toISOString());
+//console.log(ft.getTime());
+//console.log(new Date(1619949600000));
+//console.log(Date.now());
+//console.log(new Date(1612163719208));
+//ft.setFullYear(2030);
+//console.log(ft);
 
 //console.log(
 //  933993933993993939828282882829399300400404585885858588993939399221001010101n
