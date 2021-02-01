@@ -1,78 +1,110 @@
 //######################## 29.01.2021 ########################//
 //############################################################//
-// eating normal if current is between (90% of recommended por.) - (110% of recommended por.)
+const now = new Date();
+//console.log(new Date(account1.movementsDates[0]));
+//console.log(new Date(1 * 52 * 360 * 24 * 60 * 60 * 1000));
+const ft = new Date(2021, 4, 2, 13);
+console.log(ft);
+console.log(ft.getFullYear());
+console.log(ft.getMonth());
+console.log(ft.getDate());
+console.log(ft.getDay());
+console.log(ft.getHours());
+console.log(ft.getMinutes());
+console.log(ft.getSeconds());
+console.log(ft.toISOString());
+console.log(ft.getTime());
+console.log(new Date(1619949600000));
+console.log(Date.now());
+console.log(new Date(1612163719208));
 
-const dogs = [
-  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
-  { weight: 8, curFood: 200, owners: ['Matilda'] },
-  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
-  { weight: 32, curFood: 340, owners: ['Michael'] },
-];
+ft.setFullYear(2030);
+console.log(ft);
 
-/// Exercise 1
-dogs.map(dog => (dog.recFood = Math.trunc(dog.weight ** 0.75 * 28)));
-
-/// Exercise 2
-const sarahDog = dogs.find(dog => dog.owners.includes('Sarah'));
 //console.log(
-//  `Sarah dog is eating too ${
-//    sarahDog.curFood > sarahDog.recFood ? 'much' : 'little'
-//  }`
+//  933993933993993939828282882829399300400404585885858588993939399221001010101n
 //);
 
-/// Exercise 3.a
-const muchersAndLessers = dogs.reduce(
-  (acc, curDog) => {
-    if (curDog.curFood > curDog.recFood) {
-      acc.muches.push(...curDog.owners);
-    } else if (curDog.curFood < curDog.recFood) {
-      acc.lesses.push(...curDog.owners);
-    }
-    return acc;
-  },
-  { muches: [], lesses: [] }
-);
-//console.log(muchersAndLessers);
+//document.addEventListener('click', e => {
+//  e.preventDefault();
+//  [...document.querySelectorAll('.movements__row')].forEach(
+//    (row, i) => (row.style.backgroundColor = `${i % 2 === 0 ? 'orange' : ''}`)
+//  );
+//});
 
-/// Exercise 3.b
-const eatsTooMuchOwners = dogs
-  .filter(dog => dog.curFood > dog.recFood)
-  .flatMap(dog => dog.owners);
+//const isEven = num => num % 2 === 0;
+//console.log(isEven(5));
+//console.log(isEven(4));
 
-const eatsTooLessOwners = dogs
-  .filter(dog => dog.curFood < dog.recFood)
-  .flatMap(dog => dog.owners);
-//console.log(eatsTooMuchOwners, eatsTooLessOwners);
+//const randomGen = (min, max) => {
+//  const rand = Math.floor(Math.random() * (max - min + 1)) + min;
+//  console.log(rand);
+//  return rand;
+//};
+//randomGen(1, 5);
 
-/// Exercise 4
-const print = x =>
-  x === eatsTooMuchOwners
-    ? console.log(`${eatsTooMuchOwners.join(' and ')}'s dog eat too much.`)
-    : console.log(`${eatsTooLessOwners.join(' and ')}'s dog eat too less.`);
-//print(eatsTooMuchOwners);
-//print(eatsTooLessOwners);
-
-/// Exercise 5
-dogs.some(dog => dog.curFood === dog.recFood);
-//? console.log('There ARE SOME dogs which eat exactly the reccommended food')
-//: console.log('There ARE NO dogs which eat exacly the recommended amount');
-
-/// Exercise 6
-const eatOK = d => {
-  return d.curFood > d.recFood * 0.9 && d.curFood < d.recFood * 1.1;
-};
-const eatingOK = dogs.some(dog => eatOK(dog));
-//console.log(eatingOK);
-
-/// Exercise 7
-const eatingOKDogs = dogs.filter(dog => {
-  return eatOK(dog);
-});
-//console.log(eatingOKDogs);
-
-/// Exercise 8
-const sortedDogs = dogs.slice().sort((a, b) => b.recFood - a.recFood);
-//console.log(sortedDogs);
+// eating normal if current is between (90% of recommended por.) - (110% of recommended por.)
+//const dogs = [
+//  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+//  { weight: 8, curFood: 200, owners: ['Matilda'] },
+//  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+//  { weight: 32, curFood: 340, owners: ['Michael'] },
+//];
+///// Exercise 1
+//dogs.map(dog => (dog.recFood = Math.trunc(dog.weight ** 0.75 * 28)));
+///// Exercise 2
+//const sarahDog = dogs.find(dog => dog.owners.includes('Sarah'));
+////console.log(
+////  `Sarah dog is eating too ${
+////    sarahDog.curFood > sarahDog.recFood ? 'much' : 'little'
+////  }`
+////);
+///// Exercise 3.a
+//const muchersAndLessers = dogs.reduce(
+//  (acc, curDog) => {
+//    if (curDog.curFood > curDog.recFood) {
+//      acc.muches.push(...curDog.owners);
+//    } else if (curDog.curFood < curDog.recFood) {
+//      acc.lesses.push(...curDog.owners);
+//    }
+//    return acc;
+//  },
+//  { muches: [], lesses: [] }
+//);
+////console.log(muchersAndLessers);
+///// Exercise 3.b
+//const eatsTooMuchOwners = dogs
+//  .filter(dog => dog.curFood > dog.recFood)
+//  .flatMap(dog => dog.owners);
+//const eatsTooLessOwners = dogs
+//  .filter(dog => dog.curFood < dog.recFood)
+//  .flatMap(dog => dog.owners);
+////console.log(eatsTooMuchOwners, eatsTooLessOwners);
+///// Exercise 4
+//const print = x =>
+//  x === eatsTooMuchOwners
+//    ? console.log(`${eatsTooMuchOwners.join(' and ')}'s dog eat too much.`)
+//    : console.log(`${eatsTooLessOwners.join(' and ')}'s dog eat too less.`);
+////print(eatsTooMuchOwners);
+////print(eatsTooLessOwners);
+///// Exercise 5
+//dogs.some(dog => dog.curFood === dog.recFood);
+////? console.log('There ARE SOME dogs which eat exactly the reccommended food')
+////: console.log('There ARE NO dogs which eat exacly the recommended amount');
+///// Exercise 6
+//const eatOK = d => {
+//  return d.curFood > d.recFood * 0.9 && d.curFood < d.recFood * 1.1;
+//};
+//const eatingOK = dogs.some(dog => eatOK(dog));
+////console.log(eatingOK);
+///// Exercise 7
+//const eatingOKDogs = dogs.filter(dog => {
+//  return eatOK(dog);
+//});
+////console.log(eatingOKDogs);
+///// Exercise 8
+//const sortedDogs = dogs.slice().sort((a, b) => b.recFood - a.recFood);
+////console.log(sortedDogs);
 
 /// Exercise
 //make afunction to convert all words first letter to UPPERCASE with some exeptions
