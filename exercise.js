@@ -49,13 +49,30 @@ const print = x =>
   x === eatsTooMuchOwners
     ? console.log(`${eatsTooMuchOwners.join(' and ')}'s dog eat too much.`)
     : console.log(`${eatsTooLessOwners.join(' and ')}'s dog eat too less.`);
-print(eatsTooMuchOwners);
-print(eatsTooLessOwners);
+//print(eatsTooMuchOwners);
+//print(eatsTooLessOwners);
 
-//*****************************************************************************
-//************** 01.02.2021 ***************************************************
-//*****************************************************************************
 /// Exercise 5
+dogs.some(dog => dog.curFood === dog.recFood);
+//? console.log('There ARE SOME dogs which eat exactly the reccommended food')
+//: console.log('There ARE NO dogs which eat exacly the recommended amount');
+
+/// Exercise 6
+const eatOK = d => {
+  return d.curFood > d.recFood * 0.9 && d.curFood < d.recFood * 1.1;
+};
+const eatingOK = dogs.some(dog => eatOK(dog));
+//console.log(eatingOK);
+
+/// Exercise 7
+const eatingOKDogs = dogs.filter(dog => {
+  return eatOK(dog);
+});
+//console.log(eatingOKDogs);
+
+/// Exercise 8
+const sortedDogs = dogs.slice().sort((a, b) => b.recFood - a.recFood);
+//console.log(sortedDogs);
 
 /// Exercise
 //make afunction to convert all words first letter to UPPERCASE with some exeptions
