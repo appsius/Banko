@@ -101,6 +101,15 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 
+const interCurrency = (acc, num) => {
+  const opts = {
+    style: 'currency',
+    currency: `${acc.currency}`,
+  };
+  const numInter = new Intl.NumberFormat(acc.locale, opts).format(num);
+  return `${numInter}`;
+};
+
 const calcDaysPassed = (acc, d1, d2) => {
   const days = Math.round(Math.abs((d1 - d2) / (24 * 60 * 60 * 1000)));
   const options = {
@@ -108,8 +117,6 @@ const calcDaysPassed = (acc, d1, d2) => {
     month: 'numeric',
     day: 'numeric',
   };
-  console.log(new Date());
-  console.log(d2);
   const today = new Intl.DateTimeFormat(acc.locale, options).format(d2);
 
   switch (true) {
@@ -129,13 +136,6 @@ const orderMovs = () => {
   order
     ? currentUser.movements.sort((a, b) => a - b)
     : currentUser.movements.sort((a, b) => b - a);
-  order
-    ? currentUser.movementsDates.sort(
-        (a, b) => new Date(a).getTime() - new Date(b).getTime()
-      )
-    : currentUser.movementsDates.sort(
-        (a, b) => new Date(b).getTime() - new Date(a).getTime()
-      );
   order = !order;
   displayCalcs(currentUser);
 };
@@ -157,6 +157,7 @@ const displayMovements = function (account) {
   const accountDates = account.movementsDates.flatMap(date => {
     return new Date(date).toLocaleDateString().split('-');
   });
+
   account.movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
@@ -169,7 +170,10 @@ const displayMovements = function (account) {
           new Date().getTime(),
           new Date(accountDates[i]).getTime()
         )}</div>
-        <div class="movements__value">${parseFloat(mov).toFixed(2)}</div>
+        <div class="movements__value">${interCurrency(
+          account,
+          parseFloat(mov).toFixed(2)
+        )}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -178,26 +182,39 @@ const displayMovements = function (account) {
 
 const displayBalance = account => {
   account.balance = account.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${parseFloat(account.balance).toFixed(2)}€`;
+  console.log(parseFloat(account.balance).toFixed(2));
+  labelBalance.textContent = `${interCurrency(
+    account,
+    parseFloat(account.balance).toFixed(2)
+  )}`;
 };
 
 const calcDisplaySummary = account => {
   const income = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumIn.innerText = `${parseFloat(income).toFixed(2)}€`;
+  labelSumIn.innerText = `${interCurrency(
+    account,
+    parseFloat(income).toFixed(2)
+  )}`;
 
   const expense = account.movements
     .filter(mov => mov < 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumOut.textContent = `${Math.abs(expense).toFixed(2)}€`;
+  labelSumOut.textContent = `${interCurrency(
+    account,
+    Math.abs(expense).toFixed(2)
+  )}`;
 
   account.interest = account.movements
     .filter(mov => mov > 0)
     .map(mov => mov * account.interestRate * 0.01)
     .filter(int => int > 1)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumInterest.textContent = `${parseFloat(account.interest).toFixed(2)}€`;
+  labelSumInterest.textContent = `${interCurrency(
+    account,
+    parseFloat(account.interest).toFixed(2)
+  )}`;
 };
 
 const displayCalcs = acc => {
@@ -252,6 +269,20 @@ btnLogin.addEventListener('click', function (e) {
 btnTransfer.addEventListener('click', e => {
   e.preventDefault();
 
+  const EurUsd = 1.2;
+  const UsdEur = 0.83;
+
+  const ratioCurrency = (number, acc) => {
+    switch (true) {
+      case acc.currency === 'USD':
+        return parseFloat(+(number * EurUsd).toFixed(2));
+      case acc.currency === 'EUR':
+        return parseFloat(+(number * UsdEur).toFixed(2));
+      default:
+        return;
+    }
+  };
+
   const amount = parseFloat(inputTransferAmount.value).toFixed(2);
   let receiverAcc = accounts.find(
     acc => acc.shortName === inputTransferTo.value
@@ -266,7 +297,9 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc?.shortName !== currentUser.shortName
   ) {
     currentUser.movements.push(-amount);
-    receiverAcc.movements.push(+amount);
+    console.log((+amount, receiverAcc));
+    console.log(ratioCurrency(+amount, receiverAcc));
+    receiverAcc.movements.push(ratioCurrency(+amount, receiverAcc));
 
     currentUser.movementsDates.push(new Date());
     receiverAcc.movementsDates.push(new Date().toISOString());
