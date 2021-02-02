@@ -42,7 +42,7 @@ const account1 = {
     '2020-05-08T14:11:59.604Z',
     '2020-05-27T17:01:17.194Z',
     '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2021-01-31T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT',
@@ -99,6 +99,37 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 
+const calcDaysPassed = (d1, d2) => {
+  const days = Math.round(Math.abs((d1 - d2) / (24 * 60 * 60 * 1000)));
+
+  switch (true) {
+    case days < 1:
+      return `today`;
+    case days < 2:
+      return `yesterday`;
+    case days <= 5:
+      return `${days} days ago`;
+    default:
+      return new Date(d2).toLocaleDateString().split('-');
+  }
+};
+
+let order;
+const orderMovs = () => {
+  order
+    ? currentUser.movements.sort((a, b) => a - b)
+    : currentUser.movements.sort((a, b) => b - a);
+  order
+    ? currentUser.movementsDates.sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+      )
+    : currentUser.movementsDates.sort(
+        (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      );
+  order = !order;
+  displayCalcs(currentUser);
+};
+
 const transToShort = accs => {
   accs.forEach((acc, i) => {
     acc.shortName = acc.owner
@@ -116,7 +147,6 @@ const displayMovements = function (account) {
   const accountDates = account.movementsDates.flatMap(date => {
     return new Date(date).toLocaleDateString().split('-');
   });
-
   account.movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
@@ -124,8 +154,11 @@ const displayMovements = function (account) {
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__date">${accountDates[i]}</div>
-        <div class="movements__value">${mov.toFixed(2)}</div>
+        <div class="movements__date">${calcDaysPassed(
+          new Date().getTime(),
+          new Date(accountDates[i]).getTime()
+        )}</div>
+        <div class="movements__value">${parseFloat(mov).toFixed(2)}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -141,7 +174,7 @@ const displayBalance = account => {
     .join(':');
 
   account.balance = account.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${account.balance.toFixed(2)}€`;
+  labelBalance.textContent = `${parseFloat(account.balance).toFixed(2)}€`;
   labelDate.textContent = `${today}, ${time}`;
 };
 
@@ -149,7 +182,7 @@ const calcDisplaySummary = account => {
   const income = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumIn.innerText = `${income.toFixed(2)}€`;
+  labelSumIn.innerText = `${parseFloat(income).toFixed(2)}€`;
 
   const expense = account.movements
     .filter(mov => mov < 0)
@@ -161,25 +194,7 @@ const calcDisplaySummary = account => {
     .map(mov => mov * account.interestRate * 0.01)
     .filter(int => int > 1)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumInterest.textContent = `${+account.interest.toFixed(2)}€`;
-};
-
-let order;
-const orderMovs = () => {
-  order
-    ? currentUser.movements.sort((a, b) => a - b)
-    : currentUser.movements.sort((a, b) => b - a);
-
-  order
-    ? currentUser.movementsDates.sort(
-        (a, b) => new Date(a).getTime() - new Date(b).getTime()
-      )
-    : currentUser.movementsDates.sort(
-        (a, b) => new Date(b).getTime() - new Date(a).getTime()
-      );
-
-  order = !order;
-  displayCalcs(currentUser);
+  labelSumInterest.textContent = `${parseFloat(account.interest).toFixed(2)}€`;
 };
 
 const displayCalcs = acc => {
@@ -189,18 +204,15 @@ const displayCalcs = acc => {
 };
 
 let currentUser;
-
 currentUser = account1;
 displayCalcs(currentUser);
 containerApp.style.opacity = 1;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
-
   currentUser = accounts.find(
     acc => acc.shortName === inputLoginUsername.value
   );
-
   if (currentUser?.pin === +inputLoginPin.value) {
     labelWelcome.textContent = `Welcome back, ${
       currentUser.owner.split(' ')[0]
@@ -217,7 +229,7 @@ btnLogin.addEventListener('click', function (e) {
 btnTransfer.addEventListener('click', e => {
   e.preventDefault();
 
-  const amount = (+inputTransferAmount.value).toFixed(0);
+  const amount = parseFloat(inputTransferAmount.value).toFixed(2);
   let receiverAcc = accounts.find(
     acc => acc.shortName === inputTransferTo.value
   );
@@ -231,10 +243,14 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc?.shortName !== currentUser.shortName
   ) {
     currentUser.movements.push(-amount);
-    receiverAcc.movements.push(amount);
+    receiverAcc.movements.push(+amount);
 
-    currentUser.movementsDates.push(new Date().toISOString());
+    currentUser.movementsDates.push(new Date());
     receiverAcc.movementsDates.push(new Date().toISOString());
+
+    currentUser.movementsDates.map(movD =>
+      calcDaysPassed(new Date().getTime(), new Date(movD).getTime())
+    );
 
     displayCalcs(currentUser);
   }
@@ -243,7 +259,7 @@ btnTransfer.addEventListener('click', e => {
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
 
-  const loan = +Number(inputLoanAmount.value).toFixed(2);
+  const loan = parseFloat(inputLoanAmount.value).toFixed(2);
   if (loan > 0 && currentUser.movements.some(mov => loan < mov * 0.1)) {
     currentUser.movements.push(loan);
     currentUser.movementsDates.push(new Date().toISOString());
