@@ -47,6 +47,7 @@ const account1 = {
   currency: 'EUR',
   locale: 'pt-PT',
 };
+
 const account2 = {
   owner: 'Jessica Davis',
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
@@ -65,6 +66,7 @@ const account2 = {
   currency: 'USD',
   locale: 'en-US',
 };
+
 const accounts = [account1, account2];
 
 // Elements
@@ -99,8 +101,16 @@ const currencies = new Map([
   ['GBP', 'Pound sterling'],
 ]);
 
-const calcDaysPassed = (d1, d2) => {
+const calcDaysPassed = (acc, d1, d2) => {
   const days = Math.round(Math.abs((d1 - d2) / (24 * 60 * 60 * 1000)));
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  };
+  console.log(new Date());
+  console.log(d2);
+  const today = new Intl.DateTimeFormat(acc.locale, options).format(d2);
 
   switch (true) {
     case days < 1:
@@ -110,7 +120,7 @@ const calcDaysPassed = (d1, d2) => {
     case days <= 5:
       return `${days} days ago`;
     default:
-      return new Date(d2).toLocaleDateString().split('-');
+      return today;
   }
 };
 
@@ -155,6 +165,7 @@ const displayMovements = function (account) {
       i + 1
     } ${type}</div>
         <div class="movements__date">${calcDaysPassed(
+          account,
           new Date().getTime(),
           new Date(accountDates[i]).getTime()
         )}</div>
@@ -166,16 +177,8 @@ const displayMovements = function (account) {
 };
 
 const displayBalance = account => {
-  let today = new Date().toLocaleDateString('tr-TR').split('.').join('/');
-  let time = new Date()
-    .toLocaleTimeString('tr-TR')
-    .split(/:| /)
-    .slice(0, -1)
-    .join(':');
-
   account.balance = account.movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${parseFloat(account.balance).toFixed(2)}€`;
-  labelDate.textContent = `${today}, ${time}`;
 };
 
 const calcDisplaySummary = account => {
@@ -204,16 +207,36 @@ const displayCalcs = acc => {
 };
 
 let currentUser;
-currentUser = account1;
-displayCalcs(currentUser);
-containerApp.style.opacity = 1;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
+
   currentUser = accounts.find(
     acc => acc.shortName === inputLoginUsername.value
   );
+
   if (currentUser?.pin === +inputLoginPin.value) {
+    const options = {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    };
+    let today = new Intl.DateTimeFormat(currentUser.locale, options).format(
+      new Date()
+    );
+
+    currentUser.movementsDates.map(movD =>
+      calcDaysPassed(
+        currentUser,
+        new Date().getTime(),
+        new Date(movD).getTime()
+      )
+    );
+
+    labelDate.textContent = `${today}`;
+
     labelWelcome.textContent = `Welcome back, ${
       currentUser.owner.split(' ')[0]
     }`;
@@ -249,7 +272,11 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc.movementsDates.push(new Date().toISOString());
 
     currentUser.movementsDates.map(movD =>
-      calcDaysPassed(new Date().getTime(), new Date(movD).getTime())
+      calcDaysPassed(
+        currentUser,
+        new Date().getTime(),
+        new Date(movD).getTime()
+      )
     );
 
     displayCalcs(currentUser);
