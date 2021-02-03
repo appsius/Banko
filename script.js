@@ -182,7 +182,6 @@ const displayMovements = function (account) {
 
 const displayBalance = account => {
   account.balance = account.movements.reduce((acc, cur) => acc + cur, 0);
-  console.log(parseFloat(account.balance).toFixed(2));
   labelBalance.textContent = `${interCurrency(
     account,
     parseFloat(account.balance).toFixed(2)
@@ -321,12 +320,13 @@ btnLoan.addEventListener('click', e => {
 
   const loan = parseFloat(inputLoanAmount.value).toFixed(2);
   if (loan > 0 && currentUser.movements.some(mov => loan < mov * 0.1)) {
-    currentUser.movements.push(loan);
-    currentUser.movementsDates.push(new Date().toISOString());
+    setTimeout(() => {
+      currentUser.movements.push(loan);
+      currentUser.movementsDates.push(new Date().toISOString());
+      displayCalcs(currentUser);
+    }, 2500);
   }
   inputLoanAmount.value = '';
-
-  displayCalcs(currentUser);
 });
 
 btnSort.addEventListener('click', e => {
