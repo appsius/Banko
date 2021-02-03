@@ -1,5 +1,12 @@
 //######################## 29.01.2021 ########################//
 //############################################################//
+// setinterval
+
+//setTimeout(() => {
+//  clearInterval(nowInterval);
+//  console.log('Interval cleared!');
+//}, 5000);
+
 //const now = new Date();
 //console.log(new Date(account1.movementsDates[0]));
 //console.log(new Date(1 * 52 * 360 * 24 * 60 * 60 * 1000));

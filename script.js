@@ -151,6 +151,34 @@ const transToShort = accs => {
 };
 transToShort(accounts);
 
+const logoutTimer = () => {
+  const duration = 5;
+  let minutes = duration;
+  let seconds = 0;
+  labelTimer.textContent = `0${minutes}:0${seconds}`;
+
+  const timer = setInterval(() => {
+    if (seconds === 0) {
+      minutes--;
+      seconds = 59;
+    } else {
+      seconds--;
+    }
+
+    const textMinut = minutes < 10 ? `0${minutes}` : minutes;
+    const textSec = seconds < 10 ? `0${seconds}` : seconds;
+    labelTimer.textContent = `${textMinut}:${textSec}`;
+  }, 1000);
+
+  setTimeout(() => {
+    clearInterval(timer);
+    labelTimer.textContent = ``;
+    containerApp.style.opacity = 0;
+  }, duration * 60 * 1000);
+
+  return timer;
+};
+
 const displayMovements = function (account) {
   containerMovements.innerHTML = '';
 
@@ -217,15 +245,16 @@ const calcDisplaySummary = account => {
 };
 
 const displayCalcs = acc => {
-  displayBalance(acc);
   displayMovements(acc);
+  displayBalance(acc);
   calcDisplaySummary(acc);
 };
 
-let currentUser;
+let currentUser, timer;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
+  currentUser = '';
 
   currentUser = accounts.find(
     acc => acc.shortName === inputLoginUsername.value
@@ -252,15 +281,15 @@ btnLogin.addEventListener('click', function (e) {
     );
 
     labelDate.textContent = `${today}`;
-
     labelWelcome.textContent = `Welcome back, ${
       currentUser.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = '1';
-
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    if (timer) clearInterval(timer);
+    timer = logoutTimer();
     displayCalcs(currentUser);
   }
 });
@@ -296,8 +325,6 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc?.shortName !== currentUser.shortName
   ) {
     currentUser.movements.push(-amount);
-    console.log((+amount, receiverAcc));
-    console.log(ratioCurrency(+amount, receiverAcc));
     receiverAcc.movements.push(ratioCurrency(+amount, receiverAcc));
 
     currentUser.movementsDates.push(new Date());
@@ -311,6 +338,10 @@ btnTransfer.addEventListener('click', e => {
       )
     );
 
+    // reset timer
+    clearInterval(timer);
+    timer = logoutTimer();
+
     displayCalcs(currentUser);
   }
 });
@@ -321,10 +352,14 @@ btnLoan.addEventListener('click', e => {
   const loan = parseFloat(inputLoanAmount.value).toFixed(2);
   if (loan > 0 && currentUser.movements.some(mov => loan < mov * 0.1)) {
     setTimeout(() => {
-      currentUser.movements.push(loan);
+      currentUser.movements.push(+loan);
       currentUser.movementsDates.push(new Date().toISOString());
       displayCalcs(currentUser);
     }, 2500);
+
+    // reset timer
+    clearInterval(timer);
+    timer = logoutTimer();
   }
   inputLoanAmount.value = '';
 });
